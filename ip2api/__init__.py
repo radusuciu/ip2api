@@ -413,7 +413,7 @@ class IP2Experiment:
     def upload_file(self, path):
         """Upload single file to an experiment."""
         self.ip2.upload_file(
-            file_path=path,
+            file_path=pathlib.Path(path),
             upload_path=self.path,
             upload_type='spectra',
             upload_flag='ko'

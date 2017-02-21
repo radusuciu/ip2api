@@ -27,7 +27,7 @@ print(project.experiments)
 
 
 # create a new experiment and upload spectra
-new_experiment = IP2Experiment(project, 'my_experiment')
+new_experiment = IP2Experiment(ip2, project, 'my_experiment')
 new_experiment.create()
 new_experiment.upload_files(['test1.raw', 'test2.raw'])
 
