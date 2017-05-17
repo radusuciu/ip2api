@@ -460,7 +460,7 @@ class IP2Experiment:
         """Get search id when it hasn't been set by starting a search."""
         soup = self._get_experiment_soup()
         search_el = soup.find('table', id='search').find('tbody')
-        search_td = search_el.find('td')
+        search_td = search_el.find('td').find_next_sibling()
         search_id = search_td.text.strip()
         if search_id.isdigit():
             return search_id
