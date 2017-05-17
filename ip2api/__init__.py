@@ -428,7 +428,7 @@ class IP2Experiment:
         soup = self._get_experiment_soup()
         search_el = soup.find('table', id='search').find('tbody')
         search_td = search_el.find('td', text=re.compile(str(self.search_id)))
-        link_el = search_td.find_next_sibling('a', text='View')
+        link_el = search_td.find_next_sibling('td').find('a', text='View')
         dta_req = self.ip2.get(link_el.attrs['href'])
         soup = BeautifulSoup(dta_req.text, 'html.parser')
         dta_link = urljoin(self.ip2.ip2_url, soup.find('a', text=re.compile('DTASelect-filter')).attrs['href'])
