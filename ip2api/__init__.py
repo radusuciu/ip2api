@@ -646,6 +646,7 @@ class IP2Job:
         self.id = None
         self.finished = None
         self.progress = None
+        self.info = None
 
     def status(self):
         """Get job status."""
@@ -674,6 +675,8 @@ class IP2Job:
         # now collect all the information
         info = re.findall('s' + id + '\.(\w+)=([\w"\._\-\s]+);', status_req.text)
         info = dict(info)
+
+        self.info = info
 
         # the first time we check, jot down the search id
         if not self.id:
