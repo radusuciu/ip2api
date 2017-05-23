@@ -228,8 +228,11 @@ class IP2:
     def get_default_project(self):
         """Get project with default name."""
         project = self.get_project(self.default_project_name)
+
         if not project:
-            project = IP2Project(self, self.default_project_name).create()
+            project = IP2Project(self, self.default_project_name)
+            project.create()
+
         return project
 
     def get_helper_experiment(self):
