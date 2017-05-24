@@ -230,7 +230,7 @@ class IP2:
         project = self.get_project(self.default_project_name)
 
         if not project:
-            project = IP2Project(self, self.default_project_name)
+            project = IP2Project(self, name=self.default_project_name)
             project.create()
 
         return project
@@ -514,7 +514,7 @@ class IP2Experiment:
 class IP2Project:
     """Representation of a project on IP2."""
 
-    def __init__(self, ip2, project_id=None, name=None):
+    def __init__(self, ip2, name=None, project_id=None):
         """Init new project on IP2 given a name."""
         self.ip2 = ip2
         self.name = name
