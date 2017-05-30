@@ -37,7 +37,7 @@ IP2_ENDPOINTS = {
 class IP2:
     """Programatically upload and search datasets on IP2."""
 
-    def __init__(self, ip2_url, username, password=None, default_project_name='ip2_api', helper_experiment_name='ip2_api_helper'):
+    def __init__(self, ip2_url, username, password=None, cookies=None, default_project_name='ip2_api', helper_experiment_name='ip2_api_helper'):
         self.ip2_url = ip2_url
         self.username = username
         self.logged_in = False
@@ -52,6 +52,8 @@ class IP2:
 
         if password:
             self.login(password)
+        elif cookies:
+            self.cookie_login(cookies)
 
     @property
     def projects(self):
@@ -197,12 +199,23 @@ class IP2:
 
         return self.logged_in
 
+    def cookie_login(self, cookies):
+        """Login by providing cookies."""
+        self._cookies = cookies
+        return self.test_login()
+
     def logout(self):
         """Log out of IP2."""
         logout_req = self.get(IP2_ENDPOINTS['logout'])
         status = logout_req.status_code == requests.codes.ok
         self.logged_in = not status
         return status
+
+    def test_login(self):
+        """Test whether or not we are logged in."""
+        test_req = self.get(IP2_ENDPOINTS['project_list'])
+        self.logged_in = 'login' not in test_req.url
+        return self.logged_in
 
     def get_experiment(self, project_name, name):
         """Convenience method to get an experiment from a given project by name."""
