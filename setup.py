@@ -17,7 +17,7 @@ LONG_DESCRIPTION = read('README.rst')
 
 setup(
     name='ip2api',
-    version='1.1.0',
+    version='1.1.1',
     url='http://github.com/radusuciu/ip2api/',
     license='Apache Software License',
     author='Radu Suciu',

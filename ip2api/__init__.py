@@ -277,7 +277,7 @@ class IP2:
             page='/' + IP2_ENDPOINTS['prolucid_form'],
             script_name='SearchProlucidAction',
             method_name='getProteinDbForUser',
-            params={'c0-param0': 'string:{}'.format(user_id)}
+            params={'c0-param0': 'string:{}'.format(str(user_id))}
         ).text
 
         info_pattern = re.compile(r'''
@@ -721,12 +721,12 @@ class IP2Job:
         result = re.search('s(\d+)\.sampleName="' + self.dataset_name + '"', status_req.text)
 
         if result:
-            id = result.group(1)
+            _id = result.group(1)
         else:
             raise LookupError('There is no IP2 search job for {}'.format(self.dataset_name))
 
         # now collect all the information
-        info = re.findall('s' + id + '\.(\w+)=([\w"\._\-\s]+);', status_req.text)
+        info = re.findall('s' + _id + '\.(\w+)=([\w"\._\-\s]+);', status_req.text)
         info = dict(info)
 
         self.info = info
