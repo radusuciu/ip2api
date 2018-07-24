@@ -20,6 +20,7 @@ IP2_ENDPOINTS = {
     'delete_project': 'ip2/deleteProject.html',
     'project_list': 'ip2/viewProject.html',
     'file_upload': 'ip2/fileUploadAction.html',
+    'convertor_status': 'ip2/dwr/call/plaincall/FileUploadAction.checkRawConvertorStatus.dwr',
     'job_status': 'ip2/dwr/call/plaincall/JobMonitor.getSearchJobStatus.dwr',
     'prolucid_form': 'ip2/prolucidProteinForm.html',
     'prolucid_search': 'ip2/prolucidProteinId.html',
@@ -143,7 +144,7 @@ class IP2:
         session_text = self.get('ip2/dwr/engine.js').text
         return re.search('_origScriptSessionId\s=\s"(\w+)"', session_text).group(1)
 
-    def upload_file(self, file_path, upload_path, upload_type, upload_flag):
+    def upload_file(self, file_path, upload_path, upload_type, extra_options={}):
         """Helper method for uploading files to IP2."""
         with open(str(file_path), 'rb') as f:
             return(
@@ -159,16 +160,15 @@ class IP2:
                     'startProcess': 'completed',
                     'type': upload_type
                 }),
-                self.post(IP2_ENDPOINTS['file_upload'], {
+                self.post(IP2_ENDPOINTS['file_upload'], dict({
                     'fileFileName': file_path.name,
                     'filePath': upload_path,
                     'startProcess': 'post',
-                    'type': upload_type,
-                    'flag': upload_flag
-                })
+                    'type': upload_type
+                }, **extra_options))
             )
 
-    def search(self, name, file_paths, search_options, experiment_options={}):
+    def search(self, name, file_paths, search_options, experiment_options={}, convert=False, monoisotopic=False):
         """Convenience method."""
         experiment_defaults = {
             'name': name
@@ -178,7 +178,7 @@ class IP2:
 
         project = self.get_default_project()
         experiment = project.add_experiment(**experiment_defaults)
-        experiment.upload_files(file_paths)
+        experiment.upload_files(file_paths, convert, monoisotopic)
         job = experiment.prolucid_search(**search_options)
         return (experiment, job)
 
@@ -384,6 +384,16 @@ class IP2Experiment:
     def search_id(self, _id):
         self._search_id = _id
 
+    @property
+    def link(self):
+        """Get url to experiment."""
+        return urljoin(
+            self.ip2.ip2_url,
+            '{}?pid={}&projectName={}&experimentId={}'.format(
+                IP2_ENDPOINTS['experiment'], str(self.project.id), self.project.name, str(self.id)
+            )
+        )
+
     def create(self, instrument_id=65, sample_description='', experiment_description='', date=datetime.date.today()):
         """Create experiment."""
         req = self.ip2.post(IP2_ENDPOINTS['add_experiment'], {
@@ -421,19 +431,46 @@ class IP2Experiment:
 
         return success
 
-    def upload_files(self, file_paths):
+    def upload_files(self, file_paths, convert, monoisotopic):
         """Upload files to an experiment."""
         for path in file_paths:
-            self.upload_file(path)
+            self.upload_file(path, convert, monoisotopic)
 
-    def upload_file(self, path):
+    def upload_file(self, path, convert=False, monoisotopic=False):
         """Upload single file to an experiment."""
         self.ip2.upload_file(
             file_path=pathlib.Path(path),
             upload_path=self.path,
             upload_type='spectra',
-            upload_flag='ko'
+            extra_options={
+                'flag': 'ok' if convert else 'ko',
+                'monoIso': 'ok' if monoisotopic else 'ko'
+            }
         )
+
+    def check_file_convert_status(self, filename):
+        """Check status of .raw file conversion performed on IP2 server."""
+        status_req = self.ip2.dwr(
+            endpoint=IP2_ENDPOINTS['convertor_status'],
+            page=self.link,
+            script_name='FileUploadAction',
+            method_name='checkRawConvertorStatus',
+            params={
+                'c0-param0': 'string:{}'.format(filename),
+                'c0-param1': 'string:{}'.format(self.path),
+                'c0-param2': 'number:0',
+                'c0-param3': 'string:ok'
+            }
+        )
+
+        result = re.search('remoteHandleCallback\(\'\w+\',\'\w+\',\"(.+)\"\);', status_req.text)
+
+        if result:
+            status = result.group(1)
+        else:
+            raise LookupError('Status for file {}, from experiment id {}'.format(filename, str(self.id)))
+
+        return status
 
     def get_dtaselect(self):
         """Get dtaselect as a text file."""
@@ -769,7 +806,7 @@ class IP2Database():
             file_path=path,
             upload_path=self.path,
             upload_type='db',
-            upload_flag='non'
+            extra_options={ 'flag': 'non'}
         )
 
     def delete(self):
