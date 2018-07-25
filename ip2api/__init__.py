@@ -487,11 +487,9 @@ class IP2Experiment:
         result = re.search('remoteHandleCallback\(\'\w+\',\'\w+\',\"(.+)\"\);', status_req.text)
 
         if result:
-            status = result.group(1)
+            return 'DONE' in result.group(1)
         else:
-            raise LookupError('Status for file {}, from experiment id {}'.format(filename, str(self.id)))
-
-        return status
+            return False
 
     def get_dtaselect(self):
         """Get dtaselect as a text file."""
