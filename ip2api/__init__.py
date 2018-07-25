@@ -7,6 +7,7 @@ import datetime
 import requests
 import pathlib
 import re
+import polling
 from .utils import equal_dicts, file_md5
 
 IP2_ENDPOINTS = {
@@ -34,6 +35,11 @@ IP2_ENDPOINTS = {
     'add_organism': 'ip2/newOrganism.html',
     'add_instrument': 'ip2/newInstrument.html'
 }
+
+MD5_CHECK_INTERVAL=2
+MD5_CHECK_TIMEOUT=60
+CONVERT_CHECK_INTERVAL=10
+CONVERT_CHECK_TIMEOUT=300
 
 
 class IP2:
@@ -448,6 +454,23 @@ class IP2Experiment:
                 'monoIso': 'ok' if monoisotopic else 'ko'
             }
         )
+
+    def wait_until_upload_success(self, file_paths, convert):
+        """Waits until successful upload of files has been carried out."""
+        success = polling.poll(
+            lambda: all(self.check_file_md5(p) for p in file_paths),
+            step=MD5_CHECK_INTERVAL,
+            timeout=MD5_CHECK_TIMEOUT
+        )
+
+        if convert:
+            success = polling.poll(
+                lambda: all(self.check_file_convert_status(p) for p in file_paths),
+                step=CONVERT_CHECK_INTERVAL,
+                timeout=CONVERT_CHECK_TIMEOUT
+            )
+
+        return success
 
     def check_file_md5(self, file_path):
         """Check whether or not a file was successfully uploaded to IP2 by comparing md5 hashes."""
