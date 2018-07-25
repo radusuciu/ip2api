@@ -448,6 +448,26 @@ class IP2Experiment:
             }
         )
 
+    def check_file_md5(self, file_path):
+        """Check whether or not a file was successfully uploaded to IP2 by comparing md5 hashes."""
+
+        md5 = file_md5(str(file_path))
+        filename = file_path.name
+
+        req = self.ip2.dwr(
+            endpoint=IP2_ENDPOINTS['server_md5'],
+            page=self.link,
+            script_name='FileUploadAction',
+            method_name='getMd5ServerMd5Value',
+            params={
+                'c0-param0': 'string:{}'.format(self.path),
+                'c0-param1': 'string:{}'.format(md5),
+                'c0-param2': 'string:{}'.format(filename),
+            }
+        )
+
+        return md5 in req.text
+
     def check_file_convert_status(self, filename):
         """Check status of .raw file conversion performed on IP2 server."""
         status_req = self.ip2.dwr(
