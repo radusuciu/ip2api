@@ -438,14 +438,20 @@ class IP2Experiment:
 
         return success
 
-    def upload_files(self, file_paths, convert, monoisotopic):
+    def upload_files(self, file_paths, convert, monoisotopic, wait_for_success=False):
         """Upload files to an experiment."""
-        for path in file_paths:
-            self.upload_file(path, convert, monoisotopic)
+        # note that we are passing wait_for_success=False with each individual file upload, as
+        # would prefer to batch those calls together for multiple files
+        results = [self.upload_file(path, convert, monoisotopic, wait_for_success=False) for path in file_paths]
 
-    def upload_file(self, path, convert=False, monoisotopic=False):
+        if wait_for_success:
+            return self.wait_until_upload_success(file_paths, convert)
+
+        return all(results)
+
+    def upload_file(self, path, convert=False, monoisotopic=False, wait_for_success=False):
         """Upload single file to an experiment."""
-        self.ip2.upload_file(
+        responses = self.ip2.upload_file(
             file_path=pathlib.Path(path),
             upload_path=self.path,
             upload_type='spectra',
@@ -454,6 +460,11 @@ class IP2Experiment:
                 'monoIso': 'ok' if monoisotopic else 'ko'
             }
         )
+
+        if responses[0] and wait_for_success:
+            return self.wait_until_upload_success([path], convert)
+
+        return responses[0].ok
 
     def wait_until_upload_success(self, file_paths, convert):
         """Waits until successful upload of files has been carried out."""
