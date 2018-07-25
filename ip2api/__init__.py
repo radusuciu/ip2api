@@ -7,7 +7,7 @@ import datetime
 import requests
 import pathlib
 import re
-from .utils import equal_dicts
+from .utils import equal_dicts, file_md5
 
 IP2_ENDPOINTS = {
     'login': 'ip2/j_security_check',
