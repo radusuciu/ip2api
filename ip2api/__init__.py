@@ -21,6 +21,7 @@ IP2_ENDPOINTS = {
     'project_list': 'ip2/viewProject.html',
     'file_upload': 'ip2/fileUploadAction.html',
     'convertor_status': 'ip2/dwr/call/plaincall/FileUploadAction.checkRawConvertorStatus.dwr',
+    'server_md5': 'ip2/dwr/call/plaincall/FileUploadAction.getMd5ServerMd5Value.dwr',
     'job_status': 'ip2/dwr/call/plaincall/JobMonitor.getSearchJobStatus.dwr',
     'prolucid_form': 'ip2/prolucidProteinForm.html',
     'prolucid_search': 'ip2/prolucidProteinId.html',
