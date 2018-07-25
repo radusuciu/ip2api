@@ -185,7 +185,11 @@ class IP2:
 
         project = self.get_default_project()
         experiment = project.add_experiment(**experiment_defaults)
-        experiment.upload_files(file_paths, convert, monoisotopic)
+        upload_success = experiment.upload_files(file_paths, convert, monoisotopic, wait_for_success=True)
+
+        if not success:
+            raise IP2FailedFileUpload
+
         job = experiment.prolucid_search(**search_options)
         return (experiment, job)
 
@@ -980,3 +984,6 @@ class IP2Organism():
 
 class IP2SearchNotRun(Exception):
     """Raised when attempting to reference a search that has not been run yet."""
+
+class IP2FailedFileUpload(Exception):
+    """Raised when a file or files fail to be uploaded to an experiment."""
