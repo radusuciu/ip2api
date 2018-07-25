@@ -21,7 +21,7 @@ setup(
     url='http://github.com/radusuciu/ip2api/',
     license='Apache Software License',
     author='Radu Suciu',
-    install_requires=read('requirements.txt').splitlines(),
+    install_requires=['beautifulsoup4', 'requsts', 'polling'],
     author_email='radusuciu@gmail.com',
     description='Simple interface for IP2',
     long_description=LONG_DESCRIPTION,
