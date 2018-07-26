@@ -187,7 +187,7 @@ class IP2:
         experiment = project.add_experiment(**experiment_defaults)
         upload_success = experiment.upload_files(file_paths, convert, monoisotopic, wait_for_success=True)
 
-        if not success:
+        if not upload_success:
             raise IP2FailedFileUpload
 
         job = experiment.prolucid_search(**search_options)
