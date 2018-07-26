@@ -7,8 +7,9 @@ import datetime
 import requests
 import pathlib
 import re
+import math
 import polling
-from .utils import equal_dicts, file_md5
+from .utils import equal_dicts, file_md5, read_in_chunks
 
 IP2_ENDPOINTS = {
     'login': 'ip2/j_security_check',
@@ -153,27 +154,41 @@ class IP2:
 
     def upload_file(self, file_path, upload_path, upload_type, extra_options={}):
         """Helper method for uploading files to IP2."""
-        with open(str(file_path), 'rb') as f:
-            return(
-                requests.post(urljoin(self.ip2_url, IP2_ENDPOINTS['file_upload']),
+
+        # passing through requests directly rather than through self.post
+        # because the request form expected by IP2 for file uploads
+        # is very specific
+        with open(str(file_path), 'rb') as file_handle:
+            chunk_size = 51200000
+            total_size = file_path.stat().st_size
+            total_chunks = math.ceil(total_size/chunk_size)
+            current_chunk = 0
+
+            for f in read_in_chunks(file_handle):
+                upload_response = requests.post(urljoin(self.ip2_url, IP2_ENDPOINTS['file_upload']),
                     params={'filePath': upload_path},
-                    data={'name': file_path.name, 'chunk': 0, 'chunks': 1},
+                    data={'name': file_path.name, 'chunk': current_chunk, 'chunks': total_chunks},
                     cookies=self._cookies,
                     files={'file': (file_path.name, f, 'application/octet-stream')}
-                ),
-                self.post(IP2_ENDPOINTS['file_upload'], {
-                    'fileFileName': file_path.name,
-                    'filePath': upload_path,
-                    'startProcess': 'completed',
-                    'type': upload_type
-                }),
-                self.post(IP2_ENDPOINTS['file_upload'], dict({
-                    'fileFileName': file_path.name,
-                    'filePath': upload_path,
-                    'startProcess': 'post',
-                    'type': upload_type
-                }, **extra_options))
-            )
+                )
+                print('finished chunk', current_chunk)
+                current_chunk += 1
+
+        return(
+            upload_response,
+            self.post(IP2_ENDPOINTS['file_upload'], {
+                'fileFileName': file_path.name,
+                'filePath': upload_path,
+                'startProcess': 'completed',
+                'type': upload_type
+            }),
+            self.post(IP2_ENDPOINTS['file_upload'], dict({
+                'fileFileName': file_path.name,
+                'filePath': upload_path,
+                'startProcess': 'post',
+                'type': upload_type
+            }, **extra_options))
+        )
 
     def search(self, name, file_paths, search_options, experiment_options={}, convert=False, monoisotopic=False):
         """Convenience method."""

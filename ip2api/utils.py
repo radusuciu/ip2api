@@ -21,3 +21,12 @@ def file_md5(fname):
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
+
+
+def read_in_chunks(f, chunk_size=51200000):
+    """Read file in 50 MB (default) chunks)."""
+    while True:
+        data = f.read(chunk_size)
+        if not data:
+            break
+        yield data
