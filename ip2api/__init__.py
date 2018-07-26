@@ -38,9 +38,9 @@ IP2_ENDPOINTS = {
 }
 
 MD5_CHECK_INTERVAL=2
-MD5_CHECK_TIMEOUT=60
+MD5_CHECK_TIMEOUT=300
 CONVERT_CHECK_INTERVAL=10
-CONVERT_CHECK_TIMEOUT=300
+CONVERT_CHECK_TIMEOUT=3600
 
 
 class IP2:
@@ -158,13 +158,14 @@ class IP2:
         # passing through requests directly rather than through self.post
         # because the request form expected by IP2 for file uploads
         # is very specific
+        chunk_size = 51200000
+
         with open(str(file_path), 'rb') as file_handle:
-            chunk_size = 51200000
             total_size = file_path.stat().st_size
             total_chunks = math.ceil(total_size/chunk_size)
             current_chunk = 0
 
-            for f in read_in_chunks(file_handle):
+            for f in read_in_chunks(file_handle, chunk_size=chunk_size):
                 upload_response = requests.post(urljoin(self.ip2_url, IP2_ENDPOINTS['file_upload']),
                     params={'filePath': upload_path},
                     data={'name': file_path.name, 'chunk': current_chunk, 'chunks': total_chunks},
