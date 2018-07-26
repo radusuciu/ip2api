@@ -34,7 +34,7 @@ def install_deps():
     Returns:
          list of packages and dependency links.
     """
-    default = read('requirements.txt').readlines()
+    default = read('requirements.txt').splitlines()
     new_pkgs = []
     links = []
     for resource in default:
