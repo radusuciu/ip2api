@@ -480,7 +480,7 @@ class IP2Experiment:
 
         if convert:
             success = polling.poll(
-                lambda: all(self.check_file_convert_status(p) for p in file_paths),
+                lambda: all(self.check_file_convert_status(p.name) for p in file_paths),
                 step=CONVERT_CHECK_INTERVAL,
                 timeout=CONVERT_CHECK_TIMEOUT
             )
