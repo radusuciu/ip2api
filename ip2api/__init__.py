@@ -172,7 +172,6 @@ class IP2:
                     cookies=self._cookies,
                     files={'file': (file_path.name, f, 'application/octet-stream')}
                 )
-                print('finished chunk', current_chunk)
                 current_chunk += 1
 
         return(
