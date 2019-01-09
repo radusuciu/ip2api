@@ -9,6 +9,7 @@ import pathlib
 import re
 import math
 import polling
+import json
 from .utils import equal_dicts, file_md5, read_in_chunks
 
 IP2_ENDPOINTS = {
@@ -292,6 +293,9 @@ class IP2:
         databases = []
 
         for user_id, username in users:
+            if user_id == -1
+                continue
+
             for database in self._get_databases_for_user(user_id, username):
                 databases.append(database)
 
@@ -563,13 +567,19 @@ class IP2Experiment:
     def prolucid_search(self, params, database):
         """Perform prolucid search."""
         params.update({
-            'expId': self.id,
-            'expPath': self.path,
-            'sampleName': self.name,
-            'pid': self.project.id,
-            'projectName': self.project.name,
+            'expId': ip2_experiment.id,
+            'expPath': ip2_experiment.path,
+            'sampleName': ip2_experiment.name,
+            'pid': ip2_experiment.project.id,
+            'projectName': ip2_experiment.project.name,
             'sp.proteinUserId': database.user_id,
-            'sp.proteinDbId': database.id
+            'dbs': database.id,
+            'userDbValue': json.dumps([{
+                'userId': database.user_id,
+                'userText': database.username,
+                'dbId': database.user_id,
+                'dbValue': database.filepath
+            }])
         })
 
         self.ip2.post(IP2_ENDPOINTS['prolucid_search'], params)
