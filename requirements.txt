@@ -1,3 +1,3 @@
 beautifulsoup4==4.7.1
 requests==2.21.0
-git+https://github.com/radusuciu/polling.git@7c36b28534cd174d7b79e141e42e102a6feee68d#egg=polling
+git+https://github.com/radusuciu/polling.git@b31ebd351d3df28585be6ee8e37b72b806740714#egg=polling
