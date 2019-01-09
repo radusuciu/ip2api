@@ -293,7 +293,7 @@ class IP2:
         databases = []
 
         for user_id, username in users:
-            if user_id == -1:
+            if int(user_id) == -1:
                 continue
 
             for database in self._get_databases_for_user(user_id, username):
