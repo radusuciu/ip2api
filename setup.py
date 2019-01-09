@@ -50,7 +50,7 @@ pkgs, new_links = install_deps()
 
 setup(
     name='ip2api',
-    version='1.2.0',
+    version='1.2.1',
     url='http://github.com/radusuciu/ip2api/',
     license='Apache Software License',
     author='Radu Suciu',
