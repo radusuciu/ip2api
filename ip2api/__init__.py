@@ -567,11 +567,11 @@ class IP2Experiment:
     def prolucid_search(self, params, database):
         """Perform prolucid search."""
         params.update({
-            'expId': ip2_experiment.id,
-            'expPath': ip2_experiment.path,
-            'sampleName': ip2_experiment.name,
-            'pid': ip2_experiment.project.id,
-            'projectName': ip2_experiment.project.name,
+            'expId': self.id,
+            'expPath': self.path,
+            'sampleName': self.name,
+            'pid': self.project.id,
+            'projectName': self.project.name,
             'sp.proteinUserId': database.user_id,
             'dbs': database.id,
             'userDbValue': json.dumps([{
