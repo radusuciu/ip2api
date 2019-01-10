@@ -575,9 +575,9 @@ class IP2Experiment:
             'sp.proteinUserId': database.user_id,
             'dbs': database.id,
             'userDbValue': json.dumps([{
-                'userId': database.user_id,
+                'userId': str(database.user_id),
                 'userText': database.username,
-                'dbId': database.user_id,
+                'dbId': str(database.id),
                 'dbValue': database.filepath
             }])
         })
